@@ -28,7 +28,7 @@ async def main(address: str):
 
                     pathlib.Path("out").mkdir(parents=True, exist_ok=True)
                     with open(f"out/{filename}", "a+") as f:
-                        f.write(data_str + "\n\n")
+                        f.write(data_str + "\n")
                         f.close()
 
                 print(f"Connected: {client.is_connected}")
