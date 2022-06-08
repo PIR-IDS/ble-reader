@@ -22,8 +22,10 @@ async def main(address: str):
         try:
             async with BleakClient(address) as client:
                 
-                async def coordinates_handler(_, data):
+                def coordinates_handler(_, data):
                     data_str = data.decode("utf-8") 
+                    if data_str == "stop":
+                        return
                     print(data_str)
 
                     pathlib.Path("out").mkdir(parents=True, exist_ok=True)
@@ -36,9 +38,7 @@ async def main(address: str):
                     while client.is_connected:
                         ids_service = (await client.get_services()).get_service(USER_DATA_SERVICE_UUID)
                         coordinates_char = ids_service.get_characteristic(STRING_CHARACTERISTIC_UUID)
-                        await client.start_notify(coordinates_char, coordinates_handler)
-                        await asyncio.sleep(1.0)
-                        await client.stop_notify(coordinates_char)
+                        coordinates_handler(None, await client.read_gatt_char(coordinates_char))
                 except Exception as e:
                     print(e)
         except Exception as e:
