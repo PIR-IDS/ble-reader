@@ -7,6 +7,7 @@ from bleak.uuids import uuid16_dict
 
 uuid16_dict = {v: k for k, v in uuid16_dict.items()}
 filename = "ble_data.txt"
+start_writing = False
 
 USER_DATA_SERVICE_UUID = "0000{0:x}-0000-1000-8000-00805f9b34fb".format(
     uuid16_dict.get("User Data")  # 0x181C
@@ -21,12 +22,17 @@ async def main(address: str):
         print("Connecting to device...")
         try:
             async with BleakClient(address) as client:
-                
+                global start_writing
+                start_writing = False
                 def coordinates_handler(_, data):
+                    global start_writing
                     data_str = data.decode("utf-8") 
                     if data_str == "stop":
+                        start_writing = True
                         return
                     print(data_str)
+                    if not start_writing:
+                        return
 
                     pathlib.Path("out").mkdir(parents=True, exist_ok=True)
                     with open(f"out/{filename}", "a+") as f:
