@@ -17,6 +17,7 @@ STRING_CHARACTERISTIC_UUID = "0000{0:x}-0000-1000-8000-00805f9b34fb".format(
     uuid16_dict.get("String")  # 0x2A3D
 )
 
+last_index = -1
 async def main(address: str):
     while True:
         print("Connecting to device...")
@@ -36,8 +37,12 @@ async def main(address: str):
 
                     pathlib.Path("out").mkdir(parents=True, exist_ok=True)
                     with open(f"out/{filename}", "a+") as f:
-                        f.write(data_str + "\n")
-                        f.close()
+                        global last_index
+                        if (data_str[0] != last_index):
+                            f.write(data_str[1:] + "\n")
+                            f.close()
+                            last_index = data_str[0]
+                        
 
                 print(f"Connected: {client.is_connected}")
                 try:
